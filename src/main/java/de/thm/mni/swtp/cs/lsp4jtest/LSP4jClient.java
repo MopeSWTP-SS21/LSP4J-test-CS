@@ -33,7 +33,7 @@ public class LSP4jClient implements LanguageClient {
         System.out.flush();
         ExecuteCommandParams execute = new ExecuteCommandParams();
         execute.setCommand("hello");
-        execute.setArguments(List.of("world"));
+        execute.setArguments(List.of("server"));
         CompletableFuture<Object> futureRes = server.getWorkspaceService().executeCommand(execute);
         new Thread(new Runnable() {
             @Override
