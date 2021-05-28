@@ -76,7 +76,7 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
     public static void startClient() {
         try {
             LanguageClient client = new LSP4jClient();
-            Socket socket = new Socket("127.0.0.1", 667);
+            Socket socket = new Socket("127.0.0.1", 6667);
             Launcher<LanguageServer> launcher = LSPLauncher.createClientLauncher(client, socket.getInputStream(), socket.getOutputStream());
             launcher.startListening();
         } catch (IOException e) {
@@ -88,7 +88,7 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
     public static void startServer() {
         try {
             LSP4jServer server = new LSP4jServer();
-            ServerSocket socket = new ServerSocket(667);
+            ServerSocket socket = new ServerSocket(6667);
             Socket connection = socket.accept();
             Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, connection.getInputStream(), connection.getOutputStream());
             LanguageClient client = launcher.getRemoteProxy();
@@ -111,5 +111,6 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
     @Override
     public void connect(LanguageClient client) {
         client = (LSP4jClient) client;
+
     }
 }
