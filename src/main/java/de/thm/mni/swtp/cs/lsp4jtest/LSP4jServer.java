@@ -99,10 +99,13 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         Thread startServer = new Thread(LSP4jServer::startServer);
-        startServer();
-        startClient();
+        Thread startClient = new Thread(LSP4jServer::startClient);
+        // WARNING: Using sleep() this way is stupid, please use Futures or other concurrency features in a real application!
+        startServer.start();
+        Thread.sleep(1000);
+        startClient.start();
     }
 
     @Override
