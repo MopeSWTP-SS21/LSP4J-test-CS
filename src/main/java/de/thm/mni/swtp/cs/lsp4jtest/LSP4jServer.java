@@ -79,16 +79,25 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
             public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
 
             }
+
+            public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
+                System.out.println(String.format("Server thread %s was requested to execute a command:", Thread.currentThread().getName()));
+                System.out.println(String.format("Command:   %s", params.getCommand()));
+                System.out.println(String.format("Arguments: %s", params.getArguments()));
+                System.out.flush();
+                return CompletableFuture.completedFuture("Good to see you!");
+            }
         };
     }
 
     public static void startClient() {
         try {
-            LanguageClient client = new LSP4jClient();
+            LSP4jClient client = new LSP4jClient();
             Socket socket = new Socket("127.0.0.1", 6667);
             System.out.println("Client socket connected");
             System.out.flush();
             Launcher<LanguageServer> launcher = LSPLauncher.createClientLauncher(client, socket.getInputStream(), socket.getOutputStream());
+            client.connect(launcher.getRemoteProxy());
             launcher.startListening();
         } catch (IOException e) {
             e.printStackTrace();
