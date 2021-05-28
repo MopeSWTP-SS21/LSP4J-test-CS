@@ -129,6 +129,7 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
                 } catch (InterruptedException e) { /* if interrupted, we exit anyway */ }
             }
             socket.close();
+            connection.close();
             try { future.get(); } catch (Exception e) { /* we don't care, just exit somehow */ }
         } catch (IOException e) {
             e.printStackTrace();
