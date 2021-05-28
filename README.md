@@ -63,3 +63,13 @@ Shutting down a server/client started by a `Launcher` is not straightforward.
 First, you need to close its input stream so that it recognizes that there are no more messages to be received from the remote process.
 This is not enough, however, as the launcher uses an internal thread pool which is not closed by default.
 To be able to shutdown this thread pool it is best to actually create an own thread pool, pass it to the launcher builder via `setExecutorService()`, and then shut it down manually through the threadpool's `shutdown()` method.
+
+## References
+
+I compiled the information required to build this project from the following sources:
+
+* [LSP4J documentation](https://github.com/eclipse/lsp4j/blob/master/documentation/README.md)
+* [This test case within the LSP4J project](https://github.com/eclipse/lsp4j/blob/master/org.eclipse.lsp4j/src/test/java/org/eclipse/lsp4j/test/LSPEndpointTest.xtend)
+* By browsing through the LSP4J codebase
+* [TypeFox/lsp4j-chat-app](https://github.com/TypeFox/lsp4j-chat-app) (which uses surprisingly few of the actual LSP4J interfaces and is more a JSON RPC app than an LSP4J app)
+* [This issue regarding LSP4J shutdown](https://github.com/eclipse/lsp4j/issues/358)
