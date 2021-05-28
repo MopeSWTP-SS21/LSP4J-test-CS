@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class LSP4jServer implements LanguageServer, LanguageClientAware {
 
-    private LSP4jClient client;
+    private LanguageClient client;
 
     @Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
@@ -110,7 +110,7 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
 
     @Override
     public void connect(LanguageClient client) {
-        client = (LSP4jClient) client;
+        this.client = client;
 
     }
 }
