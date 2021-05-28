@@ -100,7 +100,9 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
             Launcher<LanguageServer> launcher = LSPLauncher.createClientLauncher(client, socket.getInputStream(), socket.getOutputStream());
             client.connect(launcher.getRemoteProxy());
             Future<Void> future = launcher.startListening();
-            try { clientLock.wait(); } catch (InterruptedException e) { /* if interrupted, we exit anyway */ }
+            synchronized(clientLock) {
+                try { clientLock.wait(); } catch (InterruptedException e) { /* if interrupted, we exit anyway */ }
+            }
             future.cancel(true);
         } catch (IOException e) {
             e.printStackTrace();
@@ -121,7 +123,9 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
             ((LanguageClientAware) server).connect(client);
             Future<Void> future = launcher.startListening();
             server.doSomething();
-            try { serverLock.wait(); } catch (InterruptedException e) { /* if interrupted, we exit anyway */ }
+            synchronized(serverLock) {
+                try { serverLock.wait(); } catch (InterruptedException e) { /* if interrupted, we exit anyway */ }
+            }
             future.cancel(true);
         } catch (IOException e) {
             e.printStackTrace();
@@ -143,8 +147,8 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
         startClient.start();
         System.out.println("Press any key to stop server execution");
         System.in.read();
-        serverLock.notify();
-        clientLock.notify();
+        synchronized (serverLock) { serverLock.notify(); }
+        synchronized (clientLock) { clientLock.notify(); }
     }
 
     @Override
