@@ -107,6 +107,7 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
             LanguageClient client = launcher.getRemoteProxy();
             ((LanguageClientAware) server).connect(client);
             launcher.startListening();
+            server.doSomething();
         } catch (IOException e) {
             e.printStackTrace();
         }
