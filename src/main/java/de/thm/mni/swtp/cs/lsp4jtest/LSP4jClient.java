@@ -28,7 +28,7 @@ public class LSP4jClient implements LanguageClient {
 
     @Override
     public void showMessage(MessageParams messageParams) {
-        System.out.println(String.format("Cliend thread %s received a message:", Thread.currentThread().getName()));
+        System.out.println(String.format("Client thread %s received a message:", Thread.currentThread().getName()));
         System.out.println(messageParams.getMessage());
         System.out.flush();
         ExecuteCommandParams execute = new ExecuteCommandParams();
