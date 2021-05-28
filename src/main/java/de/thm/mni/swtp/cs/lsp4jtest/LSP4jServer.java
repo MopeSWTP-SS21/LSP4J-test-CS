@@ -10,7 +10,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.CompletableFuture;
 
-public class LSP4jServer implements LanguageServer {
+public class LSP4jServer implements LanguageServer, LanguageClientAware {
+
+    private LSP4jClient client;
+
     @Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         CompletableFuture<InitializeResult> res = new CompletableFuture<InitializeResult>();
@@ -90,5 +93,10 @@ public class LSP4jServer implements LanguageServer {
     public static void main(String[] args) throws IOException {
         startServer();
         startClient();
+    }
+
+    @Override
+    public void connect(LanguageClient client) {
+        client = (LSP4jClient)client;
     }
 }
