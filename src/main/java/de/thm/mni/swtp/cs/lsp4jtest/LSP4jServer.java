@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 public class LSP4jServer implements LanguageServer, LanguageClientAware {
 
@@ -98,7 +99,9 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
             System.out.flush();
             Launcher<LanguageServer> launcher = LSPLauncher.createClientLauncher(client, socket.getInputStream(), socket.getOutputStream());
             client.connect(launcher.getRemoteProxy());
-            launcher.startListening();
+            Future<Void> future = launcher.startListening();
+            try { clientLock.wait(); } catch (InterruptedException e) { /* if interrupted, we exit anyway */ }
+            future.cancel(true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -116,12 +119,19 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
             Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, connection.getInputStream(), connection.getOutputStream());
             LanguageClient client = launcher.getRemoteProxy();
             ((LanguageClientAware) server).connect(client);
-            launcher.startListening();
+            Future<Void> future = launcher.startListening();
             server.doSomething();
+            try { serverLock.wait(); } catch (InterruptedException e) { /* if interrupted, we exit anyway */ }
+            future.cancel(true);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    // WARNING: There are way better/convenient methods for communication between threads in java now
+    // You should not use plain locks in a real application unless you REALLY know what your're doing
+    private static Object serverLock = new Object();
+    private static Object clientLock = new Object();
 
     public static void main(String[] args) throws IOException, InterruptedException {
         System.out.println("Starting LSP4J test");
@@ -131,6 +141,10 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
         startServer.start();
         Thread.sleep(1000);
         startClient.start();
+        System.out.println("Press any key to stop server execution");
+        System.in.read();
+        serverLock.notify();
+        clientLock.notify();
     }
 
     @Override
