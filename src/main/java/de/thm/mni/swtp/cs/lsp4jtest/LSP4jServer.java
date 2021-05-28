@@ -73,24 +73,34 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
         };
     }
 
-    public static void startClient() throws IOException {
-        LanguageClient client = new LSP4jClient();
-        Socket socket = new Socket("127.0.0.1", 667);
-        Launcher<LanguageServer> launcher = LSPLauncher.createClientLauncher(client, socket.getInputStream(), socket.getOutputStream());
-        launcher.startListening();
+    public static void startClient() {
+        try {
+            LanguageClient client = new LSP4jClient();
+            Socket socket = new Socket("127.0.0.1", 667);
+            Launcher<LanguageServer> launcher = LSPLauncher.createClientLauncher(client, socket.getInputStream(), socket.getOutputStream());
+            launcher.startListening();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    public static void startServer() throws IOException {
-        LSP4jServer server = new LSP4jServer();
-        ServerSocket socket = new ServerSocket(667);
-        Socket connection = socket.accept();
-        Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, connection.getInputStream(), connection.getOutputStream());
-        LanguageClient client = launcher.getRemoteProxy();
-        ((LanguageClientAware) server).connect(client);
-        launcher.startListening();
+    public static void startServer() {
+        try {
+            LSP4jServer server = new LSP4jServer();
+            ServerSocket socket = new ServerSocket(667);
+            Socket connection = socket.accept();
+            Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, connection.getInputStream(), connection.getOutputStream());
+            LanguageClient client = launcher.getRemoteProxy();
+            ((LanguageClientAware) server).connect(client);
+            launcher.startListening();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) throws IOException {
+        Thread startServer = new Thread(LSP4jServer::startServer);
         startServer();
         startClient();
     }
