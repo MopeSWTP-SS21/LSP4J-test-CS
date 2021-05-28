@@ -1,7 +1,6 @@
 package de.thm.mni.swtp.cs.lsp4jtest;
 
-import org.eclipse.lsp4j.InitializeParams;
-import org.eclipse.lsp4j.InitializeResult;
+import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
@@ -14,27 +13,61 @@ import java.util.concurrent.CompletableFuture;
 public class LSP4jServer implements LanguageServer {
     @Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
-        return null;
+        CompletableFuture<InitializeResult> res = new CompletableFuture<InitializeResult>();
+        res.complete(new InitializeResult());
+        System.out.println("LSP4J server was initialized");
+        return res;
     }
 
     @Override
     public CompletableFuture<Object> shutdown() {
-        return null;
+        System.out.println("LSP4J server was requested to shut down");
+        return CompletableFuture.completedFuture(new Object());
     }
 
     @Override
     public void exit() {
-
+        System.out.println("LSP4J server was requested to exit");
     }
 
     @Override
     public TextDocumentService getTextDocumentService() {
-        return null;
+        return new TextDocumentService() {
+            @Override
+            public void didOpen(DidOpenTextDocumentParams params) {
+
+            }
+
+            @Override
+            public void didChange(DidChangeTextDocumentParams params) {
+
+            }
+
+            @Override
+            public void didClose(DidCloseTextDocumentParams params) {
+
+            }
+
+            @Override
+            public void didSave(DidSaveTextDocumentParams params) {
+
+            }
+        };
     }
 
     @Override
     public WorkspaceService getWorkspaceService() {
-        return null;
+        return new WorkspaceService() {
+            @Override
+            public void didChangeConfiguration(DidChangeConfigurationParams params) {
+
+            }
+
+            @Override
+            public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
+
+            }
+        };
     }
 
     public static void main(String[] args) throws IOException {
