@@ -154,6 +154,7 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
 
     // WARNING: There are way better/convenient methods for communication between threads in java now
     // You should not use plain locks in a real application unless you REALLY know what your're doing
+    // I chose to do this, because I am familiar with the concept and it was the quickest solution for me
     private static final Object serverLock = new Object();
     private static final Object clientLock = new Object();
 
