@@ -70,9 +70,11 @@ public class LSP4jServer implements LanguageServer {
         };
     }
 
-    public static void startClient() {
+    public static void startClient() throws IOException {
         LanguageClient client = new LSP4jClient();
-        LSPLauncher.createClientLauncher(client, inputStream, outputStream);
+        Socket socket = new Socket("127.0.0.1", 667);
+        Launcher<LanguageServer> launcher = LSPLauncher.createClientLauncher(client, socket.getInputStream(), socket.getOutputStream());
+        launcher.startListening();
     }
 
     public static void startServer() throws IOException {
