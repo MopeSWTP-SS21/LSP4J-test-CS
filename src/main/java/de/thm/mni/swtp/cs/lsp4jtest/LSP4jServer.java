@@ -154,8 +154,8 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
 
     // WARNING: There are way better/convenient methods for communication between threads in java now
     // You should not use plain locks in a real application unless you REALLY know what your're doing
-    private static Object serverLock = new Object();
-    private static Object clientLock = new Object();
+    private static final Object serverLock = new Object();
+    private static final Object clientLock = new Object();
 
     public static void main(String[] args) throws IOException, InterruptedException {
         System.out.println("Starting LSP4J test");
