@@ -15,7 +15,8 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
     private LanguageClient client;
 
     public void doSomething() {
-        System.out.println("Server thread %s sent a message".format(Thread.currentThread().getName()));
+        System.out.println(String.format("Server thread %s sent a message", Thread.currentThread().getName()));
+        System.out.flush();
         MessageParams message = new MessageParams();
         message.setMessage("Hello world!");
         message.setType(MessageType.Info);
