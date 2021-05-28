@@ -1,4 +1,9 @@
 # Gradle configuration
 gradle
 .gradle
+
+# IntelliJ configuration
 .idea
+
+# Class files
+build
