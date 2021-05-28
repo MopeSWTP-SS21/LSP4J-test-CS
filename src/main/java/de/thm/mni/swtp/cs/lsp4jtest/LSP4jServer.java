@@ -107,6 +107,6 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
 
     @Override
     public void connect(LanguageClient client) {
-        client = (LSP4jClient)client;
+        client = (LSP4jClient) client;
     }
 }
