@@ -10,7 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.*;
 
-public class LSP4jServer implements LanguageServer, LanguageClientAware {
+public class LSP4JServer implements LanguageServer, LanguageClientAware {
 
     private LanguageClient client;
 

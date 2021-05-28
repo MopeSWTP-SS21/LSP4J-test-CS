@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public class LSP4jClient implements LanguageClient {
+public class LSP4JClient implements LanguageClient {
 
     private LanguageServer server;
 

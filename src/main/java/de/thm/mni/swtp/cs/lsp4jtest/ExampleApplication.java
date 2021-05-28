@@ -16,7 +16,7 @@ import java.util.concurrent.Future;
 public class ExampleApplication {
     public static void startClient() {
         try {
-            LSP4jClient client = new LSP4jClient();
+            LSP4JClient client = new LSP4JClient();
             Socket socket = new Socket("127.0.0.1", 6667);
             System.out.println("Client socket connected");
             System.out.flush();
@@ -43,7 +43,7 @@ public class ExampleApplication {
 
     public static void startServer() {
         try {
-            LSP4jServer server = new LSP4jServer();
+            LSP4JServer server = new LSP4JServer();
             ServerSocket socket = new ServerSocket(6667);
             System.out.println("Server socket listening");
             System.out.flush();
