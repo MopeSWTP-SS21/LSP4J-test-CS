@@ -90,7 +90,7 @@ public class ExampleApplication {
         startServer.start();
         Thread.sleep(1000);
         startClient.start();
-        System.out.println("Press any key to stop server execution");
+        System.out.println("Press enter to stop server execution");
         System.in.read();
         synchronized (serverLock) { serverLock.notify(); }
         synchronized (clientLock) { clientLock.notify(); }
