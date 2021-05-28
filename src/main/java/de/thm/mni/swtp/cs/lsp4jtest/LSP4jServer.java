@@ -70,7 +70,12 @@ public class LSP4jServer implements LanguageServer {
         };
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void startClient() {
+        LanguageClient client = new LSP4jClient();
+        LSPLauncher.createClientLauncher(client, inputStream, outputStream);
+    }
+
+    public static void startServer() throws IOException {
         LSP4jServer server = new LSP4jServer();
         ServerSocket socket = new ServerSocket(667);
         Socket connection = socket.accept();
@@ -78,5 +83,10 @@ public class LSP4jServer implements LanguageServer {
         LanguageClient client = launcher.getRemoteProxy();
         ((LanguageClientAware) server).connect(client);
         launcher.startListening();
+    }
+
+    public static void main(String[] args) throws IOException {
+        startServer();
+        startClient();
     }
 }
