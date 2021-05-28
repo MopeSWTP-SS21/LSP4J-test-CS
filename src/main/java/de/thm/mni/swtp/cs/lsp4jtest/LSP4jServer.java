@@ -96,13 +96,21 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
             Socket socket = new Socket("127.0.0.1", 6667);
             System.out.println("Client socket connected");
             System.out.flush();
-            Launcher<LanguageServer> launcher = LSPLauncher.createClientLauncher(client, socket.getInputStream(), socket.getOutputStream());
+            ExecutorService executor = Executors.newFixedThreadPool(2);
+            Launcher<LanguageServer> launcher = new LSPLauncher.Builder<LanguageServer>()
+                    .setLocalService(client)
+                    .setRemoteInterface(LanguageServer.class)
+                    .setInput(socket.getInputStream())
+                    .setOutput(socket.getOutputStream())
+                    .setExecutorService(executor)
+                    .create();
             client.connect(launcher.getRemoteProxy());
             Future<Void> future = launcher.startListening();
             synchronized(clientLock) {
                 try { clientLock.wait(); } catch (InterruptedException e) { /* if interrupted, we exit anyway */ }
             }
             socket.close();
+            executor.shutdown();
             try { future.get(); } catch (Exception e) { /* we don't care, just exit somehow */ }
         } catch (IOException e) {
             e.printStackTrace();
@@ -118,7 +126,14 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
             Socket connection = socket.accept();
             System.out.println("Server connected to client socket");
             System.out.flush();
-            Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, connection.getInputStream(), connection.getOutputStream());
+            ExecutorService executor = Executors.newFixedThreadPool(2);
+            Launcher<LanguageClient> launcher = new LSPLauncher.Builder<LanguageClient>()
+                    .setLocalService(server)
+                    .setRemoteInterface(LanguageClient.class)
+                    .setInput(connection.getInputStream())
+                    .setOutput(connection.getOutputStream())
+                    .setExecutorService(executor)
+                    .create();
             LanguageClient client = launcher.getRemoteProxy();
             ((LanguageClientAware) server).connect(client);
             Future<Void> future = launcher.startListening();
@@ -130,6 +145,7 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
             }
             socket.close();
             connection.close();
+            executor.shutdown();
             try { future.get(); } catch (Exception e) { /* we don't care, just exit somehow */ }
         } catch (IOException e) {
             e.printStackTrace();
