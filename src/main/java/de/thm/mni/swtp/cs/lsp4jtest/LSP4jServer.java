@@ -77,19 +77,24 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
         try {
             LanguageClient client = new LSP4jClient();
             Socket socket = new Socket("127.0.0.1", 6667);
+            System.out.println("Client socket connected");
+            System.out.flush();
             Launcher<LanguageServer> launcher = LSPLauncher.createClientLauncher(client, socket.getInputStream(), socket.getOutputStream());
             launcher.startListening();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public static void startServer() {
         try {
             LSP4jServer server = new LSP4jServer();
             ServerSocket socket = new ServerSocket(6667);
+            System.out.println("Server socket listening");
+            System.out.flush();
             Socket connection = socket.accept();
+            System.out.println("Server connected to client socket");
+            System.out.flush();
             Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, connection.getInputStream(), connection.getOutputStream());
             LanguageClient client = launcher.getRemoteProxy();
             ((LanguageClientAware) server).connect(client);
@@ -100,6 +105,7 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
+        System.out.println("Starting LSP4J test");
         Thread startServer = new Thread(LSP4jServer::startServer);
         Thread startClient = new Thread(LSP4jServer::startClient);
         // WARNING: Using sleep() this way is stupid, please use Futures or other concurrency features in a real application!
