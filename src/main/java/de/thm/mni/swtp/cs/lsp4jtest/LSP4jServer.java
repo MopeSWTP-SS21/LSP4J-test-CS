@@ -8,8 +8,7 @@ import org.eclipse.lsp4j.services.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class LSP4jServer implements LanguageServer, LanguageClientAware {
 
@@ -103,7 +102,8 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
             synchronized(clientLock) {
                 try { clientLock.wait(); } catch (InterruptedException e) { /* if interrupted, we exit anyway */ }
             }
-            future.cancel(true);
+            socket.close();
+            try { future.get(); } catch (Exception e) { /* we don't care, just exit somehow */ }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -124,9 +124,12 @@ public class LSP4jServer implements LanguageServer, LanguageClientAware {
             Future<Void> future = launcher.startListening();
             server.doSomething();
             synchronized(serverLock) {
-                try { serverLock.wait(); } catch (InterruptedException e) { /* if interrupted, we exit anyway */ }
+                try {
+                    serverLock.wait();
+                } catch (InterruptedException e) { /* if interrupted, we exit anyway */ }
             }
-            future.cancel(true);
+            socket.close();
+            try { future.get(); } catch (Exception e) { /* we don't care, just exit somehow */ }
         } catch (IOException e) {
             e.printStackTrace();
         }
