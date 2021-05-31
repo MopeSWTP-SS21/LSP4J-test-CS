@@ -33,8 +33,12 @@ public class ExampleApplication {
             shutdown.get(); // wait for shutdown
             socket.close();
             executor.shutdown();
-            try { future.get(); } catch (Exception e) { /* we don't care, just exit somehow */ }
+            future.get();
         } catch (IOException | InterruptedException | ExecutionException e) {
+            // Ignore, because we want to shutdown anyway
+            // IOException means that connection was not established => we need to shut down
+            // ExecutionException cannot occur, because we never call completeExceptionally in any thread
+            // InterruptedException cannot not occur, because we do not call Thread.interrupt anywhere
             e.printStackTrace();
         }
     }
@@ -67,8 +71,12 @@ public class ExampleApplication {
             socket.close();
             connection.close();
             executor.shutdown();
-            try { future.get(); } catch (Exception e) { /* we don't care, just exit somehow */ }
+            future.get();
         } catch (IOException | InterruptedException | ExecutionException e) {
+            // Ignore, because we want to shutdown anyway
+            // IOException means that connection was not established => we need to shut down
+            // ExecutionException cannot occur, because we never call completeExceptionally in any thread
+            // InterruptedException cannot not occur, because we do not call Thread.interrupt anywhere
             e.printStackTrace();
         }
     }
