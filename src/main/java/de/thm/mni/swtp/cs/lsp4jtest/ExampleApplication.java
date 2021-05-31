@@ -24,7 +24,7 @@ public class ExampleApplication {
             Launcher<LanguageServer> launcher = new LSPLauncher.Builder<LanguageServer>()
                     .setLocalService(client)
                     .setRemoteInterface(LanguageServer.class)
-                    .setInput(socket.getInputStream())
+                    .setInput(new NoExceptionSocketInputStream(socket))
                     .setOutput(socket.getOutputStream())
                     .setExecutorService(executor)
                     .create();
@@ -59,7 +59,7 @@ public class ExampleApplication {
             Launcher<LanguageClient> launcher = new LSPLauncher.Builder<LanguageClient>()
                     .setLocalService(server)
                     .setRemoteInterface(LanguageClient.class)
-                    .setInput(connection.getInputStream())
+                    .setInput(new NoExceptionSocketInputStream(connection))
                     .setOutput(connection.getOutputStream())
                     .setExecutorService(executor)
                     .create();
