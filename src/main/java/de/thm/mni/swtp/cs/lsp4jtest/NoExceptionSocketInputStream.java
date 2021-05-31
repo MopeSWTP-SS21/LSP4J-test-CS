@@ -3,6 +3,7 @@ package de.thm.mni.swtp.cs.lsp4jtest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class NoExceptionSocketInputStream extends InputStream {
 
@@ -15,7 +16,15 @@ public class NoExceptionSocketInputStream extends InputStream {
     @Override
     public int read() throws IOException {
         if (socket.isClosed()) { return -1; }
-        return socket.getInputStream().read();
+        try {
+            return socket.getInputStream().read();
+        } catch (SocketException e) {
+            if ("Socket closed".equals(e.getMessage())) {
+                // only ignore socket closed errors
+                return -1;
+            }
+            throw e;
+        }
     }
 
     @Override
