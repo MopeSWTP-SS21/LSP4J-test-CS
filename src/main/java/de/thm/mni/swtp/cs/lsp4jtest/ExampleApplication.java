@@ -9,12 +9,10 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class ExampleApplication {
-    public static void startClient() {
+    public static void startClient(CompletableFuture<Void> shutdown) {
         try {
             LSP4JClient client = new LSP4JClient();
             Socket socket = new Socket("127.0.0.1", 6667);
@@ -30,18 +28,16 @@ public class ExampleApplication {
                     .create();
             client.connect(launcher.getRemoteProxy());
             Future<Void> future = launcher.startListening();
-            synchronized(clientLock) {
-                try { clientLock.wait(); } catch (InterruptedException e) { /* if interrupted, we exit anyway */ }
-            }
+            shutdown.get(); // wait for shutdown
             socket.close();
             executor.shutdown();
             try { future.get(); } catch (Exception e) { /* we don't care, just exit somehow */ }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }
 
-    public static void startServer() {
+    public static void startServer(CompletableFuture<Void> shutdown) {
         try {
             LSP4JServer server = new LSP4JServer();
             ServerSocket socket = new ServerSocket(6667);
@@ -62,37 +58,27 @@ public class ExampleApplication {
             ((LanguageClientAware) server).connect(client);
             Future<Void> future = launcher.startListening();
             server.doSomething();
-            synchronized(serverLock) {
-                try {
-                    serverLock.wait();
-                } catch (InterruptedException e) { /* if interrupted, we exit anyway */ }
-            }
+            shutdown.get(); // wait for shutdown
             socket.close();
             connection.close();
             executor.shutdown();
             try { future.get(); } catch (Exception e) { /* we don't care, just exit somehow */ }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }
 
-    // WARNING: There are way better/convenient methods for communication between threads in java now
-    // You should not use plain locks in a real application unless you REALLY know what your're doing
-    // I chose to do this, because I am familiar with the concept and it was the quickest solution for me
-    private static final Object serverLock = new Object();
-    private static final Object clientLock = new Object();
-
     public static void main(String[] args) throws IOException, InterruptedException {
         System.out.println("Starting LSP4J test");
-        Thread startServer = new Thread(ExampleApplication::startServer);
-        Thread startClient = new Thread(ExampleApplication::startClient);
+        CompletableFuture<Void> shutdown = new CompletableFuture<>();
+        Thread startServer = new Thread(() -> startServer(shutdown));
+        Thread startClient = new Thread(() -> startClient(shutdown));
         // WARNING: Using sleep() this way is stupid, please use Futures or other concurrency features in a real application!
         startServer.start();
         Thread.sleep(1000);
         startClient.start();
         System.out.println("Press enter to stop server execution");
         System.in.read();
-        synchronized (serverLock) { serverLock.notify(); }
-        synchronized (clientLock) { clientLock.notify(); }
+        shutdown.complete(null);
     }
 }
