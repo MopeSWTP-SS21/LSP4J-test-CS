@@ -36,6 +36,7 @@ public class ExampleApplication {
             System.out.flush();
             executor.shutdown();
             future.get();
+            socket.close();
         } catch (IOException | InterruptedException | ExecutionException e) {
             // Ignore, because we want to shutdown anyway
             // IOException means that connection was not established => we need to shut down
@@ -70,12 +71,13 @@ public class ExampleApplication {
             Future<Void> future = launcher.startListening();
             server.doSomething();
             shutdown.get(); // wait for shutdown
-            //socket.close();
             connection.shutdownInput();
             System.out.println("Server shutting down");
             System.out.flush();
             executor.shutdown();
             future.get();
+            connection.close();
+            socket.close();
         } catch (IOException | InterruptedException | ExecutionException e) {
             // Ignore, because we want to shutdown anyway
             // IOException means that connection was not established => we need to shut down
