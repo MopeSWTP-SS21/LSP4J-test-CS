@@ -33,6 +33,7 @@ public class ExampleApplication {
             shutdown.get(); // wait for shutdown
             socket.shutdownInput();
             System.out.println("Client shutting down");
+            System.out.flush();
             executor.shutdown();
             future.get();
         } catch (IOException | InterruptedException | ExecutionException e) {
@@ -72,6 +73,7 @@ public class ExampleApplication {
             //socket.close();
             connection.shutdownInput();
             System.out.println("Server shutting down");
+            System.out.flush();
             executor.shutdown();
             future.get();
         } catch (IOException | InterruptedException | ExecutionException e) {
