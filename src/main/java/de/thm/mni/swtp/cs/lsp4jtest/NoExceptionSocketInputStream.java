@@ -18,8 +18,11 @@ public class NoExceptionSocketInputStream extends InputStream {
         try {
             return socket.getInputStream().read();
         } catch (SocketException e) {
-            if ("Socket closed".equals(e.getMessage())) {
-                // only ignore socket closed errors
+            if (e.getMessage().contains("closed")) {
+                // NOTE: the exact message is implementation dependent, but
+                // it seems safe to assume that an error due to a closed socket
+                // will always contain the word closed and other erros are
+                // unlikely to contain this word.
                 return -1;
             }
             throw e;
