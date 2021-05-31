@@ -24,14 +24,15 @@ public class ExampleApplication {
             Launcher<LanguageServer> launcher = new LSPLauncher.Builder<LanguageServer>()
                     .setLocalService(client)
                     .setRemoteInterface(LanguageServer.class)
-                    .setInput(new NoExceptionSocketInputStream(socket))
+                    .setInput(socket.getInputStream())
                     .setOutput(socket.getOutputStream())
                     .setExecutorService(executor)
                     .create();
             client.connect(launcher.getRemoteProxy());
             Future<Void> future = launcher.startListening();
             shutdown.get(); // wait for shutdown
-            socket.close();
+            socket.shutdownInput();
+            System.out.println("Client shutting down");
             executor.shutdown();
             future.get();
         } catch (IOException | InterruptedException | ExecutionException e) {
@@ -59,7 +60,7 @@ public class ExampleApplication {
             Launcher<LanguageClient> launcher = new LSPLauncher.Builder<LanguageClient>()
                     .setLocalService(server)
                     .setRemoteInterface(LanguageClient.class)
-                    .setInput(new NoExceptionSocketInputStream(connection))
+                    .setInput(connection.getInputStream())
                     .setOutput(connection.getOutputStream())
                     .setExecutorService(executor)
                     .create();
@@ -68,8 +69,9 @@ public class ExampleApplication {
             Future<Void> future = launcher.startListening();
             server.doSomething();
             shutdown.get(); // wait for shutdown
-            socket.close();
-            connection.close();
+            //socket.close();
+            connection.shutdownInput();
+            System.out.println("Server shutting down");
             executor.shutdown();
             future.get();
         } catch (IOException | InterruptedException | ExecutionException e) {
