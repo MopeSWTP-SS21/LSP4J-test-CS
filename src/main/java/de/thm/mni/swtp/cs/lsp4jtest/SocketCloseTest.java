@@ -1,6 +1,7 @@
 package de.thm.mni.swtp.cs.lsp4jtest;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -20,11 +21,12 @@ public class SocketCloseTest {
         Thread client = new Thread(() -> {
             try {
                 Socket socket = new Socket("127.0.0.1", 6667);
-                int b = socket.getInputStream().read();
-                b = socket.getInputStream().read();
-                b = socket.getInputStream().read();
-                socket.getInputStream().close();
-                b = socket.getInputStream().read();
+                InputStream input = socket.getInputStream();
+                int b = input.read();
+                b = input.read();
+                b = input.read();
+                input.close();
+                b = input.read();
             } catch (IOException e) {
                 e.printStackTrace();
             }
