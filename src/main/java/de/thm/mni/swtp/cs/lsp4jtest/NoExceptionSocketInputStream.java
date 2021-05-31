@@ -15,6 +15,7 @@ public class NoExceptionSocketInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
+        if (socket.isClosed()) { return -1; }
         try {
             return socket.getInputStream().read();
         } catch (SocketException e) {
