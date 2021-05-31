@@ -12,9 +12,11 @@ import java.net.Socket;
 import java.util.concurrent.*;
 
 public class ExampleApplication {
-    public static void startClient(CompletableFuture<Void> shutdown) {
+    public static void startClient(CompletableFuture<Void> shutdown, CompletableFuture<Void> serverReady) {
         try {
             LSP4JClient client = new LSP4JClient();
+            // NOTE: We need to wait for the server socket to enter listening mode
+            serverReady.get();
             Socket socket = new Socket("127.0.0.1", 6667);
             System.out.println("Client socket connected");
             System.out.flush();
@@ -37,12 +39,15 @@ public class ExampleApplication {
         }
     }
 
-    public static void startServer(CompletableFuture<Void> shutdown) {
+    public static void startServer(CompletableFuture<Void> shutdown, CompletableFuture<Void> serverReady) {
         try {
             LSP4JServer server = new LSP4JServer();
             ServerSocket socket = new ServerSocket(6667);
             System.out.println("Server socket listening");
             System.out.flush();
+            // NOTE: server socket is already listening after it's constructor returns
+            //       => it is safe to signal server readiness here
+            serverReady.complete(null);
             Socket connection = socket.accept();
             System.out.println("Server connected to client socket");
             System.out.flush();
@@ -71,11 +76,10 @@ public class ExampleApplication {
     public static void main(String[] args) throws IOException, InterruptedException {
         System.out.println("Starting LSP4J test");
         CompletableFuture<Void> shutdown = new CompletableFuture<>();
-        Thread startServer = new Thread(() -> startServer(shutdown));
-        Thread startClient = new Thread(() -> startClient(shutdown));
-        // WARNING: Using sleep() this way is stupid, please use Futures or other concurrency features in a real application!
+        CompletableFuture<Void> serverReady = new CompletableFuture<>();
+        Thread startServer = new Thread(() -> startServer(shutdown, serverReady));
+        Thread startClient = new Thread(() -> startClient(shutdown, serverReady));
         startServer.start();
-        Thread.sleep(1000);
         startClient.start();
         System.out.println("Press enter to stop server execution");
         System.in.read();
