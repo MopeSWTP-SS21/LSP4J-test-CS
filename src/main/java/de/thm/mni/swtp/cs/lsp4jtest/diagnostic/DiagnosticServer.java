@@ -1,6 +1,5 @@
 package de.thm.mni.swtp.cs.lsp4jtest.diagnostic;
 
-import de.thm.mni.swtp.cs.lsp4jtest.LSP4JServer;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher;
@@ -9,10 +8,11 @@ import org.eclipse.lsp4j.services.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 import java.util.concurrent.*;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * LSP4j server that can be used for diagnostics.
@@ -63,22 +63,22 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         return new TextDocumentService() {
             @Override
             public void didOpen(DidOpenTextDocumentParams params) {
-
+                logger.log(Level.INFO, String.format("didOpen: %s", params.getTextDocument().getUri()));
             }
 
             @Override
             public void didChange(DidChangeTextDocumentParams params) {
-
+                logger.log(Level.INFO, String.format("didChange: %s", params.getTextDocument().getUri()));
             }
 
             @Override
             public void didClose(DidCloseTextDocumentParams params) {
-
+                logger.log(Level.INFO, String.format("didClose: %s", params.getTextDocument().getUri()));
             }
 
             @Override
             public void didSave(DidSaveTextDocumentParams params) {
-
+                logger.log(Level.INFO, String.format("didSave: %s", params.getTextDocument().getUri()));
             }
         };
     }
@@ -88,20 +88,21 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         return new WorkspaceService() {
             @Override
             public void didChangeConfiguration(DidChangeConfigurationParams params) {
-
+                logger.log(Level.INFO, String.format("didChangeConfiguration: %s", params.getSettings()));
             }
 
             @Override
             public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
-
+                List<String> lst = params.getChanges().stream().map(
+                        x -> String.format("%s: %s", x.getUri(), x.getType())
+                ).collect(Collectors.toList());
+                logger.log(Level.INFO, String.format("didChangeWatchedFiles: %s", lst));
             }
 
             public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
-                System.out.println(String.format("Server thread %s was requested to execute a command:", Thread.currentThread().getName()));
-                System.out.println(String.format("Command:   %s", params.getCommand()));
-                System.out.println(String.format("Arguments: %s", params.getArguments()));
-                System.out.flush();
-                return CompletableFuture.completedFuture("Good to see you!");
+                String args = params.getArguments().stream().map(Object::toString).collect(Collectors.joining(", "));
+                logger.log(Level.INFO, String.format("executeCommand: %s(%s)", params.getCommand(), args));
+                return CompletableFuture.completedFuture("Sorry, I cannot do that. I am just a dummy. ^^\"");
             }
         };
     }
