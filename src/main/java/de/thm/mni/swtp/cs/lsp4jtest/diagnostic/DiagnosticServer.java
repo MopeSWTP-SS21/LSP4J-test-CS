@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.*;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -119,34 +120,42 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
 
     }
 
-    public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
+    public static void main(String[] args) throws Exception {
         DiagnosticServer server = new DiagnosticServer();
-        ServerSocket socket = new ServerSocket(6667);
-        logger.log(Level.INFO, String.format("Server socket listening on port %s", socket.getLocalPort()));
-        Socket connection = socket.accept();
-        logger.log(Level.INFO, String.format("Server connected to %s on port %d", connection.getInetAddress(), connection.getPort()));
-        ExecutorService executor = Executors.newFixedThreadPool(4);
-        Launcher<LanguageClient> launcher = new LSPLauncher.Builder<LanguageClient>()
-                .setLocalService(server)
-                .setRemoteInterface(LanguageClient.class)
-                .setInput(connection.getInputStream())
-                .setOutput(connection.getOutputStream())
-                .setExecutorService(executor)
-                .create();
-        LanguageClient client = launcher.getRemoteProxy();
-        ((LanguageClientAware) server).connect(client);
-        Future<Void> launcherStopped = launcher.startListening();
-        logger.log(Level.INFO, String.format("Server launcher started listening"));
-        server.waitForShutdown();
-        logger.log(Level.INFO, String.format("Server shut down"));
-        connection.shutdownInput();
-        logger.log(Level.INFO, String.format("Socket connection shut down"));
-        executor.shutdown();
-        logger.log(Level.INFO, String.format("Thread pool shut down"));
-        launcherStopped.get();
-        logger.log(Level.INFO, String.format("Launcher shut down"));
-        connection.close();
-        socket.close();
+        // create small method that creates server socket and logs that it has done so
+        Callable<ServerSocket> loggingSocketSupplier = () -> {
+            ServerSocket socket = new ServerSocket(6667);
+            logger.log(Level.INFO, String.format("Server socket listening on port %s", socket.getLocalPort()));
+            return socket;
+        };
+        // use try with resources to guarantee that we close the sockets
+        try (
+            ServerSocket socket = loggingSocketSupplier.call();
+            Socket connection = socket.accept();
+        ) {
+            logger.log(Level.INFO, String.format("Server connected to %s on port %d", connection.getInetAddress(), connection.getPort()));
+            ExecutorService executor = Executors.newFixedThreadPool(4);
+            Launcher<LanguageClient> launcher = new LSPLauncher.Builder<LanguageClient>()
+                    .setLocalService(server)
+                    .setRemoteInterface(LanguageClient.class)
+                    .setInput(connection.getInputStream())
+                    .setOutput(connection.getOutputStream())
+                    .setExecutorService(executor)
+                    .create();
+            LanguageClient client = launcher.getRemoteProxy();
+            ((LanguageClientAware) server).connect(client);
+            Future<Void> launcherStopped = launcher.startListening();
+            logger.log(Level.INFO, String.format("Server launcher started listening"));
+            server.waitForShutdown();
+            logger.log(Level.INFO, String.format("Server shut down"));
+            connection.shutdownInput();
+            logger.log(Level.INFO, String.format("Socket connection shut down"));
+            executor.shutdown();
+            logger.log(Level.INFO, String.format("Thread pool shut down"));
+            launcherStopped.get();
+            logger.log(Level.INFO, String.format("Launcher shut down"));
+        }
+        // sockets get closed due to try with resources
         logger.log(Level.INFO, String.format("Sockets closed"));
     }
 }
