@@ -194,6 +194,6 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
             logger.log(Level.INFO, "Launcher shut down");
         }
         // sockets get closed due to try with resources
-        logger.log(Level.INFO, String.format("Sockets closed"));
+        logger.log(Level.INFO, "Sockets closed");
     }
 }
