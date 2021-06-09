@@ -114,7 +114,11 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
 
     public static void stopFromConsole(DiagnosticServer server) {
         System.out.println("Press enter to stop the server prematurely");
-        System.console().readLine();
+        try {
+            System.in.read();
+        } catch (IOException e) {
+            /* ignore because we just need any signal to shut down */
+        }
         server.shutdown();
     }
 
