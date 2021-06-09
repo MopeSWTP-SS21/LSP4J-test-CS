@@ -1,9 +1,15 @@
 package de.thm.mni.swtp.cs.lsp4jtest.diagnostic;
 
+import de.thm.mni.swtp.cs.lsp4jtest.LSP4JServer;
 import org.eclipse.lsp4j.*;
+import org.eclipse.lsp4j.jsonrpc.Launcher;
+import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
 
-import java.util.concurrent.CompletableFuture;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,8 +21,17 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
 
     private static Logger logger = Logger.getLogger(DiagnosticServer.class.getName());
     private static String version = "0.0.1";
+    private CompletableFuture<Void> shutdown;
 
     private LanguageClient client;
+
+    public DiagnosticServer() {
+        this.shutdown = new CompletableFuture<>();
+    }
+
+    public void waitForShutdown() throws ExecutionException, InterruptedException {
+        this.shutdown.get();
+    }
 
     public void doSomething() {
         System.out.println(String.format("Server thread %s sent a message", Thread.currentThread().getName()));
@@ -102,5 +117,36 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
     public void connect(LanguageClient client) {
         this.client = client;
 
+    }
+
+    public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
+        DiagnosticServer server = new DiagnosticServer();
+        ServerSocket socket = new ServerSocket(6667);
+        logger.log(Level.INFO, String.format("Server socket listening on port %s", socket.getLocalPort()));
+        Socket connection = socket.accept();
+        logger.log(Level.INFO, String.format("Server connected to %s on port %d", connection.getInetAddress(), connection.getPort()));
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        Launcher<LanguageClient> launcher = new LSPLauncher.Builder<LanguageClient>()
+                .setLocalService(server)
+                .setRemoteInterface(LanguageClient.class)
+                .setInput(connection.getInputStream())
+                .setOutput(connection.getOutputStream())
+                .setExecutorService(executor)
+                .create();
+        LanguageClient client = launcher.getRemoteProxy();
+        ((LanguageClientAware) server).connect(client);
+        Future<Void> launcherStopped = launcher.startListening();
+        logger.log(Level.INFO, String.format("Server launcher started listening"));
+        server.waitForShutdown();
+        logger.log(Level.INFO, String.format("Server shut down"));
+        connection.shutdownInput();
+        logger.log(Level.INFO, String.format("Socket connection shut down"));
+        executor.shutdown();
+        logger.log(Level.INFO, String.format("Thread pool shut down"));
+        launcherStopped.get();
+        logger.log(Level.INFO, String.format("Launcher shut down"));
+        connection.close();
+        socket.close();
+        logger.log(Level.INFO, String.format("Sockets closed"));
     }
 }
