@@ -40,7 +40,7 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         logger.addHandler(new Handler() {
             @Override
             public void publish(LogRecord record) {
-                if (!isRunning()) { return; }
+                if (client == null || !isRunning()) { return; }
                 client.showMessage(new MessageParams(levelMap.getOrDefault(record.getLevel(), MessageType.Log), record.getMessage()));
             }
 
