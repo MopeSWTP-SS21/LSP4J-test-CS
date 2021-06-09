@@ -4,12 +4,17 @@ import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.services.*;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * LSP4j server that can be used for diagnostics.
  * It does not do anything meaningful on its own, but logs all requests sent by the client.
  */
 public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
+
+    private static Logger logger = Logger.getLogger(DiagnosticServer.class.getName());
+    private static String version = "0.0.1";
 
     private LanguageClient client;
 
@@ -25,8 +30,12 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
     @Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         CompletableFuture<InitializeResult> res = new CompletableFuture<InitializeResult>();
-        res.complete(new InitializeResult());
-        System.out.println("LSP4J server was initialized");
+        ServerCapabilities cap = new ServerCapabilities();
+        cap.setTextDocumentSync(TextDocumentSyncKind.None);
+        ServerInfo info = new ServerInfo(getClass().getSimpleName(), version);
+        InitializeResult init = new InitializeResult(cap, info);
+        logger.log(Level.INFO, "DiagnosticServer was initialized");
+        res.complete(init);
         return res;
     }
 
