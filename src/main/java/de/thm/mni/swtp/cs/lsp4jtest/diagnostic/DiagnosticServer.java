@@ -9,8 +9,11 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
+import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -21,6 +24,11 @@ import java.util.stream.Collectors;
 public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
 
     private static Logger logger = Logger.getLogger(DiagnosticServer.class.getName());
+    private static Map<Level, MessageType> levelMap = Map.of(
+            Level.INFO, MessageType.Info,
+            Level.WARNING, MessageType.Warning,
+            Level.SEVERE, MessageType.Error
+    );
     private static String version = "0.0.1";
     private CompletableFuture<Object> shutdown;
 
@@ -28,6 +36,24 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
 
     public DiagnosticServer() {
         this.shutdown = new CompletableFuture<>();
+        // ensures that all logged messages are forwarded to the client if possible
+        logger.addHandler(new Handler() {
+            @Override
+            public void publish(LogRecord record) {
+                if (!isRunning()) { return; }
+                client.showMessage(new MessageParams(levelMap.getOrDefault(record.getLevel(), MessageType.Log), record.getMessage()));
+            }
+
+            @Override
+            public void flush() {
+
+            }
+
+            @Override
+            public void close() throws SecurityException {
+
+            }
+        });
     }
 
     public void waitForShutdown() throws ExecutionException, InterruptedException {
