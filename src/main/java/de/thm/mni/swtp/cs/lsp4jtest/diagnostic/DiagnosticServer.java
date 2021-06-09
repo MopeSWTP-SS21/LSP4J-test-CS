@@ -112,6 +112,12 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
 
     }
 
+    public static void stopFromConsole(DiagnosticServer server) {
+        System.out.println("Press enter to stop the server prematurely");
+        System.console().readLine();
+        server.shutdown();
+    }
+
     public static void main(String[] args) throws Exception {
         DiagnosticServer server = new DiagnosticServer();
         // create small method that creates server socket and logs that it has done so
@@ -138,6 +144,7 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
             ((LanguageClientAware) server).connect(client);
             Future<Void> launcherStopped = launcher.startListening();
             logger.log(Level.INFO, "Server launcher started listening");
+            new Thread(() -> stopFromConsole(server)).start();
             server.waitForShutdown();
             logger.log(Level.INFO, "Server shut down");
             connection.shutdownInput();
@@ -149,5 +156,6 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         }
         // sockets get closed due to try with resources
         logger.log(Level.INFO, String.format("Sockets closed"));
+        System.in.close(); // close system in to kill the stopFromConsole thread
     }
 }
