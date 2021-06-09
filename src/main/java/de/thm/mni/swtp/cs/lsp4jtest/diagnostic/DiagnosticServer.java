@@ -48,14 +48,14 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
 
     @Override
     public CompletableFuture<Object> shutdown() {
-        System.out.println("LSP4J server was requested to shut down");
+        logger.log(Level.INFO, "Server was requested to shut down");
         shutdown.complete(null);
         return shutdown;
     }
 
     @Override
     public void exit() {
-        System.out.println("LSP4J server was requested to exit");
+        logger.log(Level.INFO, "Server was requested to exit");
     }
 
     @Override
