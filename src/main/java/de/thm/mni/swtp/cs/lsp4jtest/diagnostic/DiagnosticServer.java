@@ -65,6 +65,7 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         CompletableFuture<InitializeResult> res = new CompletableFuture<InitializeResult>();
         ServerCapabilities cap = new ServerCapabilities();
         cap.setTextDocumentSync(TextDocumentSyncKind.None);
+        logger.log(Level.INFO, cap.toString());
         ServerInfo info = new ServerInfo(getClass().getSimpleName(), version);
         InitializeResult init = new InitializeResult(cap, info);
         logger.log(Level.INFO, "DiagnosticServer was initialized");
