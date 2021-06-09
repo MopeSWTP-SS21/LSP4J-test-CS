@@ -137,15 +137,15 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
             LanguageClient client = launcher.getRemoteProxy();
             ((LanguageClientAware) server).connect(client);
             Future<Void> launcherStopped = launcher.startListening();
-            logger.log(Level.INFO, String.format("Server launcher started listening"));
+            logger.log(Level.INFO, "Server launcher started listening");
             server.waitForShutdown();
-            logger.log(Level.INFO, String.format("Server shut down"));
+            logger.log(Level.INFO, "Server shut down");
             connection.shutdownInput();
-            logger.log(Level.INFO, String.format("Socket connection shut down"));
+            logger.log(Level.INFO, "Socket connection shut down");
             executor.shutdown();
-            logger.log(Level.INFO, String.format("Thread pool shut down"));
+            logger.log(Level.INFO, "Thread pool shut down");
             launcherStopped.get();
-            logger.log(Level.INFO, String.format("Launcher shut down"));
+            logger.log(Level.INFO, "Launcher shut down");
         }
         // sockets get closed due to try with resources
         logger.log(Level.INFO, String.format("Sockets closed"));
