@@ -22,7 +22,7 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
 
     private static Logger logger = Logger.getLogger(DiagnosticServer.class.getName());
     private static String version = "0.0.1";
-    private CompletableFuture<Void> shutdown;
+    private CompletableFuture<Object> shutdown;
 
     private LanguageClient client;
 
@@ -58,7 +58,8 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
     @Override
     public CompletableFuture<Object> shutdown() {
         System.out.println("LSP4J server was requested to shut down");
-        return CompletableFuture.completedFuture(new Object());
+        shutdown.complete(null);
+        return shutdown;
     }
 
     @Override
