@@ -34,15 +34,6 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         this.shutdown.get();
     }
 
-    public void doSomething() {
-        System.out.println(String.format("Server thread %s sent a message", Thread.currentThread().getName()));
-        System.out.flush();
-        MessageParams message = new MessageParams();
-        message.setMessage("Hello world!");
-        message.setType(MessageType.Info);
-        client.showMessage(message);
-    }
-
     @Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         CompletableFuture<InitializeResult> res = new CompletableFuture<InitializeResult>();
