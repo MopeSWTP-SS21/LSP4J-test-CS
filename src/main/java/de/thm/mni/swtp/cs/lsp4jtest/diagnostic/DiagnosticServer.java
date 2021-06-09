@@ -116,11 +116,18 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
     public static void stopFromConsole(DiagnosticServer server) {
         System.out.println("Press enter to stop the server prematurely");
         try {
-            System.in.read();
-        } catch (IOException e) {
+            // wait in a polling loop until either server is shutdown or System.in has input
+            while (server.isRunning() && System.in.available() == 0) {
+                Thread.sleep(100);
+            }
+        } catch (IOException | InterruptedException e) {
             /* ignore because we just need any signal to shut down */
         }
         server.shutdown();
+    }
+
+    private boolean isRunning() {
+        return !shutdown.isDone();
     }
 
     public static void main(String[] args) throws Exception {
@@ -161,6 +168,5 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         }
         // sockets get closed due to try with resources
         logger.log(Level.INFO, String.format("Sockets closed"));
-        System.in.close(); // close system in to kill the stopFromConsole thread
     }
 }
