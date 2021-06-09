@@ -125,6 +125,7 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
                 logger.log(Level.INFO, String.format("didChangeWatchedFiles: %s", lst));
             }
 
+            @Override
             public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
                 String args = params.getArguments().stream().map(Object::toString).collect(Collectors.joining(", "));
                 logger.log(Level.INFO, String.format("executeCommand: %s(%s)", params.getCommand(), args));
