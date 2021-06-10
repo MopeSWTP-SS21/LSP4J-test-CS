@@ -71,6 +71,11 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         CompletableFuture<InitializeResult> res = new CompletableFuture<InitializeResult>();
         ServerCapabilities cap = new ServerCapabilities();
         cap.setTextDocumentSync(TextDocumentSyncKind.None);
+        WorkspaceServerCapabilities workspace = new WorkspaceServerCapabilities();
+        WorkspaceFoldersOptions workspaceFolders = new WorkspaceFoldersOptions();
+        workspaceFolders.setChangeNotifications(true);
+        workspace.setWorkspaceFolders(workspaceFolders);
+        cap.setWorkspace(workspace);
         logger.log(Level.INFO, cap.toString());
         ServerInfo info = new ServerInfo(getClass().getSimpleName(), version);
         InitializeResult init = new InitializeResult(cap, info);
