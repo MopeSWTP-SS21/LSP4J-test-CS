@@ -152,7 +152,7 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
             @Override
             public void didChangeWorkspaceFolders(DidChangeWorkspaceFoldersParams params) {
                 logger.log(Level.INFO, String.format(
-                        "didChangeWorkspaceFolders: added = %s, removed = %s",
+                        "didChangeWorkspaceFolders:\nAdded:\n%s\n\nRemoved:\n%s",
                         params.getEvent().getAdded(),
                         params.getEvent().getRemoved()
                 ));
