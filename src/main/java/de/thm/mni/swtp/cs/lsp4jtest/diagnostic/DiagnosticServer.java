@@ -143,6 +143,15 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
                 logger.log(Level.INFO, String.format("executeCommand: %s(%s)", params.getCommand(), args));
                 return CompletableFuture.completedFuture("Sorry, I cannot do that. I am just a dummy. ^^\"");
             }
+
+            @Override
+            public void didChangeWorkspaceFolders(DidChangeWorkspaceFoldersParams params) {
+                logger.log(Level.INFO, String.format(
+                        "didChangeWorkspaceFolders: added = %s, removed = %s",
+                        params.getEvent().getAdded(),
+                        params.getEvent().getRemoved()
+                ));
+            }
         };
     }
 
