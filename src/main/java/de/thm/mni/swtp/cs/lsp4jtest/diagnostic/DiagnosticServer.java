@@ -62,6 +62,12 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
 
     @Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
+        logger.log(Level.INFO, String.format(
+                "Client %s@%s requested initialization with the following capabilities:\n%s",
+                params.getClientInfo().getName(),
+                params.getClientInfo().getVersion()),
+                params.getCapabilities()
+        );
         CompletableFuture<InitializeResult> res = new CompletableFuture<InitializeResult>();
         ServerCapabilities cap = new ServerCapabilities();
         cap.setTextDocumentSync(TextDocumentSyncKind.None);
@@ -71,6 +77,11 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         logger.log(Level.INFO, "DiagnosticServer was initialized");
         res.complete(init);
         return res;
+    }
+
+    @Override
+    public void initialized(InitializedParams params) {
+        logger.log(Level.INFO, "Client has received initialize result");
     }
 
     @Override
