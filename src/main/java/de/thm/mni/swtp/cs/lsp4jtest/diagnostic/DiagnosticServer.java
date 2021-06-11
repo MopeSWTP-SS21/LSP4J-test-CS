@@ -75,6 +75,10 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         WorkspaceFoldersOptions workspaceFolders = new WorkspaceFoldersOptions();
         workspaceFolders.setChangeNotifications(true);
         workspace.setWorkspaceFolders(workspaceFolders);
+        // register commands that can be executed
+        cap.setExecuteCommandProvider(new ExecuteCommandOptions(List.of(
+                "loadModel"
+        )));
         cap.setWorkspace(workspace);
         logger.log(Level.INFO, cap.toString());
         ServerInfo info = new ServerInfo(getClass().getSimpleName(), version);
