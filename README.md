@@ -9,6 +9,17 @@ The project consist of three classes: `LSP4JClient` and `LSP4JServer` are minima
 To test the project, run `ExampleApplication` and observe the messages sent by the different threads in the console.
 You can stop the server and client by pressing enter.
 
+## Quick start: DiagnosticServer
+
+I tried to keep the first test server and client as small as possible for maximum understandability.
+However, this repository now also contains a "diagnostic server", which can be used to test LSP clients.
+It has no notable capabilities of its own, but sends and logs a lot of messages that can be helpful for debugging.
+I aim to extend this server to the point that it can communicate with a VS Code plugin, such as [MopeSWTP-SS21/vs-code-client](https://github.com/MopeSWTP-SS21/vs-code-client), without any issues.
+It will mimic the capabilities of the Mo|E server in [MopeSWTP-SS21/MopeSWTP](https://github.com/MopeSWTP-SS21/MopeSWTP).
+
+To start the server you simply have to run the main method of `de.thm.mni.swtp.cs.lsp4jtest.diagnostic.DiagnosticServer`.
+The simplest way to do so is open this project in IntellJ, import the project configuration from gradle, open the server souce code, and press CTRL+SHIFT+F10.
+
 ## General insights
 
 ### Remote procedure calls
