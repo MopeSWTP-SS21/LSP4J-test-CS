@@ -96,6 +96,7 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
     @Override
     public CompletableFuture<Object> shutdown() {
         logger.log(Level.INFO, "Server was requested to shut down");
+        // FIXME this should stop the server from sending commands, but not from *receiving* commands
         shutdown.complete(null);
         return shutdown;
     }
