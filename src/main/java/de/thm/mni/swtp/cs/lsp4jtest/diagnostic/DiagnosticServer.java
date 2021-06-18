@@ -81,6 +81,7 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         // Completion capabilities
         CompletionOptions comp = new CompletionOptions();
         comp.setTriggerCharacters(List.of("."));
+        comp.setResolveProvider(false);
         cap.setCompletionProvider(comp);
         // Workspace capabilities
         WorkspaceServerCapabilities workspace = new WorkspaceServerCapabilities();
