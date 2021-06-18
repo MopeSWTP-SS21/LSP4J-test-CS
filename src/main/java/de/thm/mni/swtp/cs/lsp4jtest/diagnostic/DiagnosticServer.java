@@ -73,7 +73,11 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         ));
         CompletableFuture<InitializeResult> res = new CompletableFuture<InitializeResult>();
         ServerCapabilities cap = new ServerCapabilities();
-        cap.setTextDocumentSync(TextDocumentSyncKind.Incremental);
+        TextDocumentSyncOptions sync = new TextDocumentSyncOptions();
+        sync.setOpenClose(true);
+        sync.setChange(TextDocumentSyncKind.Incremental);
+        sync.setSave(new SaveOptions(true));
+        cap.setTextDocumentSync(sync);
         // Completion capabilities
         CompletionOptions comp = new CompletionOptions();
         comp.setTriggerCharacters(List.of("."));
