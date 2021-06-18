@@ -2,12 +2,14 @@ package de.thm.mni.swtp.cs.lsp4jtest.diagnostic;
 
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -31,6 +33,7 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
     );
     private static String version = "0.0.1";
     private CompletableFuture<Object> shutdown;
+    private Map<String, List<String>> documents = new HashMap<>();
 
     private LanguageClient client;
 
@@ -70,7 +73,12 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         ));
         CompletableFuture<InitializeResult> res = new CompletableFuture<InitializeResult>();
         ServerCapabilities cap = new ServerCapabilities();
-        cap.setTextDocumentSync(TextDocumentSyncKind.None);
+        cap.setTextDocumentSync(TextDocumentSyncKind.Incremental);
+        // Completion capabilities
+        CompletionOptions comp = new CompletionOptions();
+        comp.setTriggerCharacters(List.of("."));
+        cap.setCompletionProvider(comp);
+        // Workspace capabilities
         WorkspaceServerCapabilities workspace = new WorkspaceServerCapabilities();
         WorkspaceFoldersOptions workspaceFolders = new WorkspaceFoldersOptions();
         workspaceFolders.setSupported(true);
@@ -110,6 +118,27 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
     @Override
     public TextDocumentService getTextDocumentService() {
         return new TextDocumentService() {
+
+            @Override
+            public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams position) {
+                logger.log(Level.INFO, String.format(
+                        "completion: %s:%d:%d %s(%s)",
+                        position.getTextDocument().getUri(),
+                        position.getPosition().getLine(),
+                        position.getPosition().getCharacter(),
+                        position.getContext().getTriggerKind(),
+                        position.getContext().getTriggerKind()
+                ));
+                CompletionList lst = new CompletionList();
+                lst.setIsIncomplete(false);
+                CompletionItem item1 = new CompletionItem("dummy1");
+                item1.setDocumentation("This is just a dummy entry");
+                CompletionItem item2 = new CompletionItem("dummy2");
+                item2.setDocumentation("This is just a dummy entry");
+                lst.setItems(List.of(item1, item2));
+                return CompletableFuture.completedFuture(Either.forRight(lst));
+            }
+
             @Override
             public void didOpen(DidOpenTextDocumentParams params) {
                 logger.log(Level.INFO, String.format("didOpen: %s", params.getTextDocument().getUri()));
