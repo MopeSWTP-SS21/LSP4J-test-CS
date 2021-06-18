@@ -73,6 +73,7 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         cap.setTextDocumentSync(TextDocumentSyncKind.None);
         WorkspaceServerCapabilities workspace = new WorkspaceServerCapabilities();
         WorkspaceFoldersOptions workspaceFolders = new WorkspaceFoldersOptions();
+        workspaceFolders.setSupported(true);
         workspaceFolders.setChangeNotifications(true);
         workspace.setWorkspaceFolders(workspaceFolders);
         // register commands that can be executed
