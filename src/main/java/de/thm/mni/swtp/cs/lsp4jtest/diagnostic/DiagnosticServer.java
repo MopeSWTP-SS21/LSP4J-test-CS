@@ -1,8 +1,12 @@
 package de.thm.mni.swtp.cs.lsp4jtest.diagnostic;
 
 import org.eclipse.lsp4j.*;
+import org.eclipse.lsp4j.generator.JsonRpcData;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
+import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
 
@@ -61,6 +65,37 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
 
     public void waitForShutdown() throws ExecutionException, InterruptedException {
         this.shutdown.get();
+    }
+
+    @JsonRpcData
+    public class LoadModelParams {
+        @NonNull
+        public String modelName;
+        public LoadModelParams(String modelName) {
+            this.modelName = modelName;
+        }
+    }
+
+    @JsonSegment("modelica")
+    public interface ModelicaService {
+        @JsonRequest
+        CompletableFuture<String> loadModel(String modelName);
+
+        @JsonRequest
+        CompletableFuture<String> loadModelFixed(LoadModelParams params);
+    }
+
+    public ModelicaService getModelicaService() {
+        return new ModelicaService() {
+            public CompletableFuture<String> loadModel(String modelName){
+                logger.log(Level.INFO, String.format("loadModel(%s)", modelName));
+                return CompletableFuture.completedFuture(String.format("loaded %s", modelName));
+            }
+            public CompletableFuture<String> loadModelFixed(LoadModelParams params){
+                logger.log(Level.INFO, String.format("loadModel(%s)", params.modelName));
+                return CompletableFuture.completedFuture(String.format("loaded %s", params.modelName));
+            }
+        };
     }
 
     @Override
