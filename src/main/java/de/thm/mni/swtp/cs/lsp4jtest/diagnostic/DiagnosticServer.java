@@ -4,6 +4,7 @@ import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.generator.JsonRpcData;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.jsonrpc.services.JsonDelegate;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
@@ -85,6 +86,7 @@ public class DiagnosticServer  implements LanguageServer, LanguageClientAware {
         CompletableFuture<String> loadModelFixed(LoadModelParams params);
     }
 
+    @JsonDelegate
     public ModelicaService getModelicaService() {
         return new ModelicaService() {
             public CompletableFuture<String> loadModel(String modelName){
